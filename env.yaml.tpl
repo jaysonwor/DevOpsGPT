@@ -49,8 +49,7 @@ GPT_KEYS_BACKUP: |
     }
 
 # Configure the model used (do not use less than 16k token model), [note] openai plus members and API members are different, you opena plus member does not mean that you can use gpt4 model, specifically consult the official documentation of openai
-# 配置使用的模型（不要使用小于16k token的模型），【注意】openai的plus会员和API会员是不同的，你开通了plus会员不代表可以用gpt4的模型，具体查阅openai的官方文档
-LLM_MODEL: "gpt-3.5-turbo-16k-0613"  
+LLM_MODEL: "gpt-3.5-turbo-16k-0613"
 
 LANGUAGE: 'en'  # en、zh
 SITE_NAME: 'DevOpsGPT'

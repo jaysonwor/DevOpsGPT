@@ -141,11 +141,11 @@ $(document).ready(function () {
                 <div class="field">
                 <label>`+globalFrontendText["service_type"]+`</label>
                 <select class="ui fluid dropdown" id="service_service_type_`+serviceID+`">
-                    <option value="FRONTEND">前端/移动端（Frontend/Mobile）</option>
-                    <option value="BACKEND">后端服务（Backend）</option>
-                    <option value="FRONTEND_BACKEND">前端+后端（Frontend + Backend）</option>
-                    <option value="GAME">游戏（GAME）</option>
-                    <option value="COMMON">其它（Others）</option>
+                    <option value="FRONTEND">(Frontend/Mobile）</option>
+                    <option value="BACKEND">（Backend）</option>
+                    <option value="FRONTEND_BACKEND">（Frontend + Backend）</option>
+                    <option value="GAME">（GAME）</option>
+                    <option value="COMMON">（Others）</option>
                 </select>
                 </div>
                 <div class="field">
@@ -271,11 +271,11 @@ function showApp(appID, isTpl) {
                     <div class="field">
                     <label>`+globalFrontendText["service_type"]+`</label>
                     <select class="ui fluid dropdown" id="service_service_type_`+idx+`" value=`+service.service_type+`>
-                        <option value="FRONTEND">前端/移动端（Frontend/Mobile）</option>
-                        <option value="FRONTEND_BACKEND">前端+后端（Frontend + Backend）</option>
-                        <option value="BACKEND">后端服务（Backend）</option>
-                        <option value="GAME">游戏（GAME）</option>
-                        <option value="COMMON">其它（Others）</option>
+                        <option value="FRONTEND">Frontend/Mobile</option>
+                        <option value="FRONTEND_BACKEND">Frontend + Backend）</option>
+                        <option value="BACKEND">Backend</option>
+                        <option value="GAME">GAME</option>
+                        <option value="COMMON">Others</option>
                     </select>
                     </div>
                     <div class="field">

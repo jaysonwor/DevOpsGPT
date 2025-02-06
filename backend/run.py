@@ -41,20 +41,18 @@ NOT_CHECK_LOGIN_PATH = [
 
 @app.before_request
 def require_login():
-    # 开启自动登录，直接设置
     if AUTO_LOGIN:
-        storage.set("username", "demo_user")
-        storage.set("user_id", 1)
+        storage.set("username", "rastin")
+        storage.set("user_id", 2)
         storage.set("tenant_id", 0)
 
     path = request.path
-    # 不需要验证登录状态的接口
+    #
     if path in NOT_CHECK_LOGIN_PATH:
         pass
-    # 如果未登录返回错误
+    #
     elif not storage.get("username") or not storage.get("user_id"):
         return {'success': False, 'error': 'Access denied', 'code': 401}
-    # 如果登录了，验证组织状态和是否有操作权限
     else:
         username = storage.get("username")
         current_time = datetime.datetime.now()

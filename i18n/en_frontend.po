@@ -1011,10 +1011,10 @@ msgstr ""
 #: backend/app/pkgs/tools/i18b.py:248
 msgid "index_view_url"
 msgstr ""
-"<iframe src='//player.bilibili.com/player.html?"
-"aid=874614890&bvid=BV1QN4y1y7uo&cid=1297241046&p=1&autoplay=0&muted=0' "
-"scrolling='no' border='0' width='800px' height='450px' frameborder='no' "
-"framespacing='0' allowfullscreen='true'> </iframe>"
+#"<iframe src='//player.bilibili.com/player.html?"
+#"aid=874614890&bvid=BV1QN4y1y7uo&cid=1297241046&p=1&autoplay=0&muted=0' "
+#"scrolling='no' border='0' width='800px' height='450px' frameborder='no' "
+#"framespacing='0' allowfullscreen='true'> </iframe>"
 
 #: backend/app/pkgs/tools/i18b.py:249
 msgid ""

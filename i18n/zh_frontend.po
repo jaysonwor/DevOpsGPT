@@ -22,11 +22,11 @@ msgstr "Switch to English"
 
 #: backend/app/pkgs/tools/i18b.py:36
 msgid "Start"
-msgstr "开始"
+msgstr "Start"
 
 #: backend/app/pkgs/tools/i18b.py:37 backend/app/pkgs/tools/i18b.py:211
 msgid "More"
-msgstr "更多"
+msgstr "More"
 
 #: backend/app/pkgs/tools/i18b.py:38
 msgid "Hello"
@@ -213,7 +213,7 @@ msgstr "取消"
 
 #: backend/app/pkgs/tools/i18b.py:79
 msgid "Retry"
-msgstr "重试"
+msgstr "Retry"
 
 #: backend/app/pkgs/tools/i18b.py:80
 msgid "Restart"
@@ -1018,10 +1018,10 @@ msgstr "查看详情"
 #: backend/app/pkgs/tools/i18b.py:248
 msgid "index_view_url"
 msgstr ""
-"<iframe src='//player.bilibili.com/player.html?"
-"aid=619522551&bvid=BV1Z84y117qn&cid=1297199738&p=1&autoplay=0&muted=0' "
-"scrolling='no' border='0' width='800px' height='450px' frameborder='no' "
-"framespacing='0' allowfullscreen='true'> </iframe>"
+#"<iframe src='//player.bilibili.com/player.html?"
+#"aid=619522551&bvid=BV1Z84y117qn&cid=1297199738&p=1&autoplay=0&muted=0' "
+#"scrolling='no' border='0' width='800px' height='450px' frameborder='no' "
+#"framespacing='0' allowfullscreen='true'> </iframe>"
 
 #: backend/app/pkgs/tools/i18b.py:249
 msgid ""

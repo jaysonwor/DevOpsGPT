@@ -4,6 +4,7 @@ flask==2.2.5
 pyyaml
 python-gitlab
 openai==1.8.0
+#openai
 aliyun-python-sdk-core
 aliyun-python-sdk-eci
 alembic

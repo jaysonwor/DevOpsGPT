@@ -615,7 +615,7 @@ function language() {
     errorCallback = function(data) {
         console.log(data)
         $("#my-login").modal('show')
-        myAlertPure("Error 错误", "The back-end service interface cannot be accessed. Please check the terminal service log and browser console. (Usually the back-end service is not started, Or exists <a href='https://github.com/kuafuai/DevOpsGPT/blob/master/docs/DOCUMENT.md#configuration-details' target='_blank'> Cross-domain problem? </a>)<br /><br />无法访问后端服务接口，请检查终端服务日志以及浏览器控制台报错信息。（通常是后端服务没有启动，或存在 <a href='https://github.com/kuafuai/DevOpsGPT/blob/master/docs/DOCUMENT_CN.md#%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E7%B1%BB' target='_blank'>跨域问题？</a>）")
+        myAlertPure("Error ", "The back-end service interface cannot be accessed. Please check the terminal service log and browser console. (Usually the back-end service is not started, Or exists <a href='https://github.com/kuafuai/DevOpsGPT/blob/master/docs/DOCUMENT.md#configuration-details' target='_blank'> Cross-domain problem? </a>)<br /><br <a href='https://github.com/kuafuai/DevOpsGPT/blob/master/docs/DOCUMENT_CN.md#%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E7%B1%BB' target='_blank'？</a>）")
     }
 
     sendAjaxRequest('/user/language', 'GET', "", successCallback, errorCallback, false, false)
@@ -755,7 +755,7 @@ function createWS(serviceName) {
     errorCallback = function(error) {
         var retruBtn = '<br /><br /><button class="ui green button" onClick="createWS(\''+serviceName+'\')">'+globalFrontendText["retry"]+'</button>'
         myAlertPure("ERROR", error + retruBtn)
-        throw new Error("发生了一个错误")
+        throw new Error("An error occurred")
     }
 
     sendAjaxRequest('/workspace/create', "POST", requestData, successCallback, errorCallback, false, false)
@@ -1680,7 +1680,7 @@ function clarify(customPrompt, thisElement) {
     thinkUI(customPrompt, globalFrontendText["ai_think"], 'PM')
 
     var requestData = JSON.stringify({ 'user_prompt': customPrompt, 'global_context': JSON.stringify(globalContext), 'task_id': getTaskID() })
-    var retruBtn = '<br /><br /><button class="ui green button" onClick="clarify(\''+escapeHtml(customPrompt)+'\', this)">重试</button>'
+    var retruBtn = '<br /><br /><button class="ui green button" onClick="clarify(\''+escapeHtml(customPrompt)+'\', this)">Try Again</button>'
 
     errorCallback = function(errorMsg) {
         $(".ai-code").eq($('ai-code').length - 1).html(errorMsg+retruBtn);
