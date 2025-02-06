@@ -1,4 +1,4 @@
-# DevOpsGPT: AI-Driven Software Development Automation Solution Rv1 
+# DevOpsGPT: AI-Driven Software Development Automation Solution Rev 2 
 
 <p align="center">
 <a href="docs/README_CN.md"><img src="docs/files/%E6%96%87%E6%A1%A3-%E4%B8%AD%E6%96%87%E7%89%88-blue.svg" alt="CN doc"></a>
