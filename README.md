@@ -1,4 +1,4 @@
-# DevOpsGPT: AI-Driven Software Development Automation Solution
+# DevOpsGPT: AI-Driven Software Development Automation Solution Rv1 
 
 <p align="center">
 <a href="docs/README_CN.md"><img src="docs/files/%E6%96%87%E6%A1%A3-%E4%B8%AD%E6%96%87%E7%89%88-blue.svg" alt="CN doc"></a>
@@ -40,7 +40,7 @@ Welcome to the AI Driven Software Development Automation Solution, abbreviated a
 ## Workflow
 Through the above introduction and Demo demonstration, you must be curious about how DevOpsGPT achieves the entire process of automated requirement development in an existing project. Below is a brief overview of the entire process:
 
-![工作流程](docs/files/intro-flow-en.png)
+![](docs/files/intro-flow-en.png)
 
 - Clarify requirement documents: Interact with DevOpsGPT to clarify and confirm details in requirement documents.
 - Generate interface documentation: DevOpsGPT can generate interface documentation based on the requirements, facilitating interface design and implementation for developers.
