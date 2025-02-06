@@ -19,4 +19,4 @@ apscheduler
 flask-limiter
 boto3
 # yum install mysql-devel gcc gcc-devel python-devel
-# mysqlclient which version?
+# mysqlclient which version
