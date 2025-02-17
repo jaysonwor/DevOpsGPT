@@ -1,17 +1,19 @@
 from flask import request
-from app.pkgs.tools import storage
-from app.controllers.common import json_response
-from app.pkgs.prompt.prompt import aiAnalyzeError
-from app.pkgs.devops.local_tools import compileCheck, lintCheck
-from app.pkgs.tools.i18b import getI18n
-from app.pkgs.devops.devops import triggerPipeline, getPipelineStatus
-from app.pkgs.knowledge.app_info import getServiceGitPath, getServiceDockerImage
-from app.pkgs.tools.file_tool import get_ws_path
-from app.pkgs.devops.cd import triggerCD
-from app.models.application_service import ApplicationService
+from ..pkgs.tools import storage
+from ..controllers.common import json_response
+from ..pkgs.prompt.prompt import aiAnalyzeError
+from ..pkgs.devops.local_tools import compileCheck, lintCheck
+from ..pkgs.tools.i18b import getI18n
+from ..pkgs.devops.devops import triggerPipeline, getPipelineStatus
+from ..pkgs.knowledge.app_info import getServiceGitPath, getServiceDockerImage
+from ..pkgs.tools.file_tool import get_ws_path
+from ..pkgs.devops.cd import triggerCD
+from ..models.application_service import ApplicationService
 from flask import Blueprint
-from app.models.setting import getCIConfigList, getCDConfigList
-from app.models.requirement import Requirement
+from ..models.setting import getCIConfigList, getCDConfigList
+from ..models.requirement import Requirement
+
+
 
 bp = Blueprint('step_devops', __name__, url_prefix='/step_devops')
 
@@ -33,11 +35,14 @@ def trigger_ci():
 
     branch = req["default_target_branch"]
 
+
     result, piplineID, piplineUrl, success = triggerPipeline(requirementID, branch, serviceInfo, ciConfigList[0])
-    if success:
-        return {"name": 'ci', "info": {"piplineID": piplineID, "repopath": serviceInfo["git_path"], "piplineUrl": piplineUrl}}
-    else:
+    if not success:
         raise Exception(result)
+    else:
+        return {"name": 'ci',
+                "info": {"piplineID": piplineID, "repopath": serviceInfo["git_path"], "piplineUrl": piplineUrl}}
+
 
 
 @bp.route('/query_ci', methods=['GET'])
@@ -123,6 +128,10 @@ def trigger_cd():
 
     if len(image) < 1:
         raise Exception(_("Could not get deployment docker image, Please “Trigger continuous integration” first."))
+
+    '''CD_TOOLS = cdConfig["cd_provider"]
+    if CD_TOOLS == 'local':
+        obj = CDLocal()'''
 
     result, success = triggerCD(requirementID, image, serviceInfo, cdConfigList[0])
     if success:

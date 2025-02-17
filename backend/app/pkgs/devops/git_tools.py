@@ -99,7 +99,7 @@ def genCloneUrl(gitPath, gitUrl, username, token):
 
     return finalUrl
 
-# 从 fatureBranch 重置当前workspace，如果fatureBranch不存在，则直接返回成功
+# Reset the current workspace from fateBranch. If featureBranch does not exist, return success directly.
 def gitResetWorkspace(wsPath, gitPath, fatureBranch, commitMsg, gitConfigList):
     gitCwd = wsPath+'/'+gitPath
 
@@ -110,7 +110,9 @@ def gitResetWorkspace(wsPath, gitPath, fatureBranch, commitMsg, gitConfigList):
         return True, result.stderr
     
     result = subprocess.run(
-        ['git', 'reset', '--hard', 'origin/'+fatureBranch], capture_output=True, text=True, cwd=gitCwd)
+        ['git', 'reset', '--hard', fatureBranch], capture_output=True, text=True, cwd=gitCwd)
+            #['git', 'reset', '--hard', 'origin/' + fatureBranch], capture_output = True, text = True, cwd = gitCwd)
+
     if result.returncode != 0:
         print(result.stderr)
         return False, "git reset --hard origin fatureBranch false failed: "+result.stderr

@@ -97,16 +97,16 @@ def removeColorCodes(log_string):
     #         return False, str(e)
 
 def parseDockerImage(input_str):
-    # 定义正则表达式模式
+    # Define regular expression pattern
     pattern = r'kuafuai_docker_image_pushed:(.+?)[&|\n]'
 
-    # 使用 re.search 来查找匹配项
+    # Use re.search to find matches
     match = re.search(pattern, input_str)
 
-    # 如果找到匹配项，则提取结果
+    # If a match is found, extract the result
     if match:
         result = match.group(1)
         return result
     else:
-        print("parseDockerImage: 未找到匹配项")
+        print("parseDockerImage: No match found")
         return ""

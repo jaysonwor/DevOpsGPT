@@ -105,14 +105,14 @@ Frontend Business logic
 ]
                      
 ## Backend RESTful API
-请求体参数
+Request body parameters
 ```python
 [
     "name, type",
 ]
 ```
                
-响应体参数
+Response body parameters
 ```python
 [
     "name, type",

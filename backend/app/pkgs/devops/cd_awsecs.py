@@ -7,13 +7,16 @@ import datetime
 class CDAWS:    
     def triggerCD(self, image, serviceInfo, cdConfig):
         aws_service_name, aws_alb_name, aws_tg_name = self.generate_names_with_timestamp(serviceInfo["service_id"])
-
-        # 创建 ALB 和 Target Group
+        print ('cdConfig : ', cdConfig ,
+               'serviceInfo :' ,serviceInfo,
+                "aws_alb_name :", aws_alb_name,
+                "aws_tg_name :" ,aws_tg_name)
+        # Create ALB and Target Group
         alb_arn, tg_arn, alb_dns_name, success = self.create_alb_and_target_group(cdConfig, serviceInfo, aws_alb_name, aws_tg_name)
         if not success:
             return f"Failed to create alb and target_grpup {alb_arn}", False
 
-        # 创建 ECS 客户端
+        # Create an ECS client
         client = boto3.client(
             'ecs',
             aws_access_key_id=cdConfig["ACCESS_KEY"],
@@ -21,11 +24,11 @@ class CDAWS:
             region_name=serviceInfo["cd_region"]
         )
 
-        # 从 AWS Secrets Manager 获取配置好的 Secret 值，用于拉取私有库的镜像
+        # Obtain the configured Secret value from AWS Secrets Manager for pulling the image of the private library
         secret_name = "Docker"
         secret_value = self.get_secret(secret_name, cdConfig, serviceInfo)
 
-        # 创建任务定义
+        # Create task definition
         container_definition = {
             "name": serviceInfo["cd_container_name"],
             "image": image,
@@ -37,7 +40,7 @@ class CDAWS:
                  'hostPort': 80,
                  'protocol': 'tcp'},
                 ],
-                 "environment": [  # 示例：将 secret_value 作为环境变量
+                 "environment": [  # Example: using secret_value as an environment variable
                     {
                         "name": "SECRET_KEY",
                         "value": secret_value
@@ -63,14 +66,14 @@ class CDAWS:
 
         print(f"Generated service_name: {aws_service_name}")
         try:
-            # 创建或更新服务
+            # Create or update a service
             cd_cluster = 'KuaFuAIUser'
             existing_services = client.list_services(cluster=cd_cluster)
             if aws_service_name in existing_services["serviceArns"]:
                 client.update_service(
                     cluster=cd_cluster,
                     service=aws_service_name,
-                    desiredCount=1,  # 预定 1 个任务
+                    desiredCount=1,  # Book 1 task
                     taskDefinition=task_definition,
                 )
             else:
@@ -78,7 +81,7 @@ class CDAWS:
                     cluster=cd_cluster,
                     serviceName=aws_service_name,
                     taskDefinition=task_definition,
-                    desiredCount=1,  # 预定 1 个任务
+                    desiredCount=1,  # Book 1 task
                     launchType='FARGATE',
                     networkConfiguration={
                         'awsvpcConfiguration': {
@@ -91,7 +94,7 @@ class CDAWS:
                         {
                             'targetGroupArn': tg_arn,
                             'containerName': serviceInfo["cd_container_name"],
-                            'containerPort': 80     # 容器的监听端口
+                            'containerPort': 80     # Container listening port
 
                         }
                     ],
@@ -99,13 +102,13 @@ class CDAWS:
         except Exception as e:
             return f"Error creating/updating service: {str(e)}", False
 
-        return f'访问网址：http://{alb_dns_name}:8086 （本环境仅供体验，1小时后将自动删除。This environment is for experience only and will be deleted after 1 hour）', True
+        return f'Visit URL：http://{alb_dns_name}:8086 （This environment is for experience only and will be deleted after 1 hour）', True
     
     def generate_names_with_timestamp(self, service_id):
-        # 获取当前时间并格式化为小时和分钟
+        # Get the current time and format it into hours and minutes
         timestamp = datetime.datetime.now().strftime('%H%M')
 
-        # 生成资源名称，服务名称除外，它将从cdConfig中获取
+        # Generate resource names, except the service name, which will be obtained from cdConfig
         albname = f"User-alb-{service_id}-{timestamp}"
         tgname = f"User-tg-{service_id}-{timestamp}"
         service_name = f"User-Service-{service_id}-{timestamp}"
@@ -121,7 +124,7 @@ class CDAWS:
         )
 
         try:
-            # 创建 ALB
+            # create ALB
             alb_response = elbv2_client.create_load_balancer(
                 Name=albname,
                 Subnets=[serviceInfo["cd_subnet"], serviceInfo["cd_subnet2"]],
@@ -135,20 +138,20 @@ class CDAWS:
             alb_arn = alb_response['LoadBalancers'][0]['LoadBalancerArn']
             alb_dns_name = alb_response['LoadBalancers'][0]['DNSName']
 
-            # 创建 Target Group
+            # create Target Group
             tg_response = elbv2_client.create_target_group(
                 Name=tgname,
                 Protocol='HTTP',
-                Port=80,   # 注意：确保这个端口号与容器监听端口一致
+                Port=80,   # Note: Make sure this port number is consistent with the container listening port
                 VpcId= serviceInfo["cd_vpc"],  # https://console.amazonaws.cn/vpc/home?region=cn-north-1#vpcs:
                 TargetType='ip',
-                HealthCheckProtocol='HTTP',  # 指定健康检查协议
-                HealthCheckPort='80',  # 指定健康检查端口   
-                HealthCheckPath='/',  # 指定健康检查路径
-                HealthCheckIntervalSeconds=30,  # 指定健康检查间隔
-                HealthCheckTimeoutSeconds=5,  # 指定健康检查超时
-                HealthyThresholdCount=2,  # 指定健康阈值
-                UnhealthyThresholdCount=2,  # 指定不健康阈值
+                HealthCheckProtocol='HTTP',  # Designated health screening protocol
+                HealthCheckPort='80',  # Specify health check port
+                HealthCheckPath='/',  # Specify health check path
+                HealthCheckIntervalSeconds=30,  # Specify health check interval
+                HealthCheckTimeoutSeconds=5,  # Specify health check timeout
+                HealthyThresholdCount=2,  # Specify health threshold
+                UnhealthyThresholdCount=2,  # Specify unhealthy threshold
             )
 
             tg_arn = tg_response['TargetGroups'][0]['TargetGroupArn']
@@ -171,7 +174,7 @@ class CDAWS:
             return f"Error creating ALB and Target Group: {str(e)}", None, None, False
     
     def get_secret(self, secret_name, cdConfig, serviceInfo):
-        # 创建 ECS 客户端
+        # Create an ECS client
         client = boto3.client(
             'secretsmanager',
             aws_access_key_id=cdConfig["ACCESS_KEY"],
@@ -179,35 +182,35 @@ class CDAWS:
             region_name=serviceInfo["cd_region"]
         )
 
-        # 在 try 块中尝试检索 secret
+        # Try retrieving the secret in a try block
         try:
             get_secret_value_response = client.get_secret_value(
                 SecretId=secret_name
             )
         except ClientError as e:
-            # 如果没有找到密钥或发生其他错误，打印错误消息
+            # If the key is not found or another error occurs, print an error message
             if e.response['Error']['Code'] == 'DecryptionFailureException':
-                # Secrets Manager 不能解密受保护的 secret 文本
+                # Secrets Manager Unable to decrypt protected secret text
                 raise e
             elif e.response['Error']['Code'] == 'InternalServiceErrorException':
-                # 发生内部服务错误
+                # An internal service error occurred
                 raise e
             elif e.response['Error']['Code'] == 'InvalidParameterException':
-                # 提供的参数无效
+                # The argument provided is invalid
                 raise e
             elif e.response['Error']['Code'] == 'InvalidRequestException':
-                # 提供的请求无效
+                # The request provided is invalid
                 raise e
             elif e.response['Error']['Code'] == 'ResourceNotFoundException':
-                # 未找到指定的 secret
+                # The specified secret
                 raise e
             else:
-                # 未知错误
+                # unknown error
                 raise e
         else:
-            # 如果 secret 使用了字符串，则直接返回它
+            # If the secret uses a string, return it directly
             if 'SecretString' in get_secret_value_response:
                 return get_secret_value_response['SecretString']
-            # 否则，返回二进制值
+            # Otherwise, return binary value
             else:
                 return get_secret_value_response['SecretBinary']

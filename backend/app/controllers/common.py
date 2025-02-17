@@ -2,7 +2,7 @@ from functools import wraps
 import traceback
 from flask import jsonify
 from flask_limiter import RateLimitExceeded
-from app.pkgs.analyzer_code_exception import AnalyzerCodeException, AnalyzerCodeProcessException
+from ..pkgs.analyzer_code_exception import AnalyzerCodeException, AnalyzerCodeProcessException
 
 
 def json_response(func):

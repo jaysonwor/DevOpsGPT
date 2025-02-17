@@ -2,11 +2,11 @@ import html
 import time
 import requests
 import re
-from app.pkgs.devops.devops_interface import DevopsInterface
+from ..devops.devops_interface import DevopsInterface
 
 class DevopsGitHub(DevopsInterface):
     def triggerPipeline(self, branch_name, serviceInfo, ciConfig):
-        print(ciConfig)
+        print("ciConfig :' %s", ciConfig)
 
         ciURL = ciConfig["ci_api_url"]
         ciToken = ciConfig["ci_token"]
@@ -14,10 +14,13 @@ class DevopsGitHub(DevopsInterface):
         gitWorkflow = serviceInfo["git_workflow"]
         try:
             pipeline_url = f"{ciURL}/repos/{repopath}/actions/workflows/{gitWorkflow}/dispatches"
+
             headers = {
+
                 "Authorization": f"Bearer {ciToken}",
                 "Accept": "application/vnd.github+json",
                 "X-GitHub-Api-Version": "2022-11-28"
+                # "Content-Type": "application/json"
             }
             data = {
                 "ref": branch_name
@@ -25,7 +28,6 @@ class DevopsGitHub(DevopsInterface):
             print(pipeline_url, flush=True)
             response = requests.post(pipeline_url, json=data, headers=headers)
             print(response, flush=True)
-
             if response.status_code == 204:
                 print("Pipeline triggered successfully.")
                 time.sleep(3)
@@ -42,7 +44,7 @@ class DevopsGitHub(DevopsInterface):
 
                 return "Get pipline status...", run_id, f"https://github.com/{repopath}/actions/runs/{run_id}", True
             else:
-                return f"Failed to trigger pipeline 【Please confirm that the code has been pushed】. giturl:{ciURL} repopath:{repopath} branch:{branch_name} gitWorkflow:{gitWorkflow}, Error: {str(e)}", 0, "", False
+                return f"Failed to trigger pipeline 【Please confirm that the code has been pushed】. giturl:{ciURL} repopath:{repopath} branch:{branch_name} gitWorkflow:{gitWorkflow}, Error(response.status_code): {str(response.status_code)}", 0, "", False
         except Exception as e:
             return f"Failed to trigger pipeline 【Please confirm that the code has been pushed】. giturl:{ciURL} repopath:{repopath} branch:{branch_name} gitWorkflow:{gitWorkflow}, Error: {str(e)}", 0, "", False
 
@@ -66,7 +68,7 @@ class DevopsGitHub(DevopsInterface):
 
                 run_details = requests.get(job_log_url, headers=headers)
                 if run_details.status_code == 200:
-                    # 获取阶段信息
+
                     jobs = run_details.json()["jobs"]
                     
                     job_info = []
@@ -97,7 +99,7 @@ class DevopsGitHub(DevopsInterface):
                         })
 
                     return list(reversed(job_info)), docker_image, True
-            return f"Failed to get pipeline status for repo {repopath} and pipeline ID {run_id}, Error: {str(e)}", '', False
+            return f"Failed to get pipeline status for repo {repopath} and pipeline ID {run_id}, Error(run_details.status_code): {str(run_details.status_code)}", '', False
         except Exception as e:
             return f"Failed to get pipeline status for repo {repopath} and pipeline ID {run_id}, Error: {str(e)}", '', False
 
@@ -133,16 +135,13 @@ def removeColorCodes(log_string):
     return cleaned_string
 
 def parseDockerImage(input_str):
-    # 定义正则表达式模式
     pattern = r'kuafuai_docker_image_pushed:(.+?)[&|\n]'
 
-    # 使用 re.search 来查找匹配项
     match = re.search(pattern, input_str)
 
-    # 如果找到匹配项，则提取结果
     if match:
         result = match.group(1)
         return result
     else:
-        print("parseDockerImage: 未找到匹配项")
+        print("parseDockerImage: No match found")
         return ""

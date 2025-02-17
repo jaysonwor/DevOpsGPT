@@ -28,8 +28,8 @@ class SettingBasic(SettingInterface):
     def getCIConfigList(self, tenantID, appID, hideToken=False):
         gitList = []
         name = "Public CI config"
-        if storage.get("language") == 'zh':
-            name = "公共CI配置"
+        #if storage.get("language") == 'zh':
+        #    name = "Public CI configuration"
         public_cfg = {
             "name" : name,
             "ci_provider" : DEVOPS_TOOLS,

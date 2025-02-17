@@ -63,7 +63,7 @@ class LLMBase(LLMInterface):
             response = openai_cli.chat.completions.create(
                 model= LLM_MODEL,
                 messages=context,
-                max_tokens=10000,
+                max_tokens=4096,
                 temperature=0,
                 timeout=600
             )

@@ -1563,7 +1563,7 @@ function refreshPluginciStatus(piplineID, repopath, piplineUrl, element, times, 
                     icon = '<i class="times circle red  icon big pluginci-status" data-title='+element['status']+'></i>'
                     jobDone = true
                 }
-                str += '<div class="item"><div class="right floated content"><div data-title="执行日志" onClick="myAlert(\'任务日志\',\''+element['log']+'\')" class="ui button pluginci-status">查看日志</div></div>'+icon+'<div class="content">' + element['job_name'] + '</content></div></div>'
+                str += '<div class="item"><div class="right floated content"><div data-title="execution log" onClick="myAlert(\'Mission log\',\''+element['log']+'\')" class="ui button pluginci-status">View Log</div></div>'+icon+'<div class="content">' + element['job_name'] + '</content></div></div>'
                 if (jobDone==false) {
                     allDone = false    
                 }
@@ -1620,7 +1620,7 @@ function clarifyOk(element) {
     inputs.each(function() { 
         $(this).prop('disabled', true);
         let q = $(this).parent().parent().prev().children("span").text()
-        content += globalFrontendText["question"]+question+", "+q+" 回答："+$(this).val()+"；\n"; 
+        content += globalFrontendText["question"]+question+", "+q+" answer："+$(this).val()+"；\n"; 
         question++
     }); 
     clarify(content)

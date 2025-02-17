@@ -59,7 +59,7 @@ $(document).ready(function () {
             err_msg = "The 'APP name' field cannot be empty. '应用名称'字段不能为空。"
         }
         if (requestData.app_description.length < 2) {
-            err_msg = "The 'APP introduction' field cannot be empty. '应用介绍'字段不能为空。"
+            err_msg = "The 'APP introduction' field cannot be empty. 'Application introduction' field cannot be empty.。"
         }
         if (err_msg.length > 0) {
             appCreateErrorCallback(err_msg)
