@@ -1,0 +1,192 @@
+
+Deployment URL
+To access a self-hosted GitHub server and view your deployed application, you need to navigate to the domain or
+IP address where your self-hosted GitHub Enterprise server is running, followed by the specific URL path associated
+ with your application, which is usually defined in your deployment configuration within the repository; essentially,
+  you'll access it like any other web application by going to "your_server_address/your_application_path" in your web
+  browser.
+Key points to remember:
+
+    Access URL:
+    The exact URL will depend on how you configured your deployment, but typically it will be something like
+    https://your-github-server-domain/your-repo-name/your-app-directory.
+    Authentication
+---------------------------------------
+cd_local.py is empty
+cd.py : doesn;t have any github depoloyment
+no gitlab deployment at all!
+default.yaml : deploy on : local-hosted instead of ubuntu-last
+https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28
+-----------
+Could not get deployment docker image, Please “Trigger continuous integration” first.
+
+-----------------------------------
+devops_github.py
+
+pipeline_url = f"{ciURL}/{repopath}/actions/workflows/{gitWorkflow}"
+now I get 403 code! Forbidden
+-------------------------------------------------------
+DEVOPS_TOOLS: "github"
+Failed to trigger pipeline 【Please confirm that the code has been pushed】. giturl:https://api.github.com
+repopath:Rastin-Abbasi/template_freestyleApp branch:feat/20250212_ga61 gitWorkflow:default.yaml,
+Error: local variable 'e' referenced before assignment
+
+  File "/home/rastin/Projects/DevOpsGPT/DevOpsGPT/backend/app/controllers/common.py", line 12, in decorated_function
+    result = func(*args, **kwargs)
+  File "/home/rastin/Projects/DevOpsGPT/DevOpsGPT/backend/app/controllers/step_devops.py", line 40, in trigger_ci
+
+fixed:
+devops_github.py
+
+   def triggerPipeline(self, branch_name, serviceInfo, ciConfig):
+        print(ciConfig)
+
+        ciURL = ciConfig["ci_api_url"]
+        ciToken = ciConfig["ci_token"]
+        repopath = serviceInfo["git_path"]
+        gitWorkflow = serviceInfo["git_workflow"]
+        try:
+            pipeline_url = f"{ciURL}/repos/{repopath}/actions/workflows/{gitWorkflow}/dispatches"
+            headers = {
+                "Authorization": f"Bearer {ciToken}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28"
+            }
+            data = {
+                "ref": branch_name
+            }
+            print(pipeline_url, flush=True)
+            response = requests.post(pipeline_url, json=data, headers=headers)
+            print(response, flush=True)
+
+            if response.status_code == 204:
+                print("Pipeline triggered successfully.")
+                time.sleep(3)
+
+                # Get the most recent record
+                workflow_url = f"{ciURL}/repos/{repopath}/actions/workflows/{gitWorkflow}/runs"
+                response = requests.get(workflow_url, headers=headers)
+                #print(response.json())
+                if response.status_code == 200:
+                    runs = response.json()["workflow_runs"]
+                    for run in runs:
+                        run_id = run["id"]
+                        break
+
+                return "Get pipline status...", run_id, f"https://github.com/{repopath}/actions/runs/{run_id}", True
+            else:
+                return f"Failed to trigger pipeline 【Please confirm that the code has been pushed】. giturl:{ciURL} repopath:{repopath} branch:{branch_name} gitWorkflow:{gitWorkflow}, Error(response.status_code): {str(response.status_code)}", 0, "", False
+        except Exception as e:
+
+https://api.github.com/repos/Rastin-Abbasi/template_freestyleApp/actions/workflows/default.yaml/dispatches
+https://github.com/Rastin-Abbasi/template_javaWebApp_backend/actions/workflows/default.yaml
+
+ X-GitHub-Api-Version : https://docs.github.com/en/rest/about-the-rest-api/api-versions?apiVersion=2022-11-28
+
+        Requests without the X-GitHub-Api-Version header will default to use the 2022-11-28 version.
+
+If you specify an API version that is no longer supported, you will receive a 400 error.
+
+This works on Terminal: !!
+curl -L   -H "Accept: application/vnd.github+json"   -H "Authorization: Bearer <my-token>"   -H "X-GitHub-Api-Version: 2022-11-28"   https://api.github.com/user/repos
+
+This worked
+# GitHub CLI api
+# https://cli.github.com/manual/gh_api
+
+gh api \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  /user/repos
+
+
+Action is default disabled!
+Workflows aren’t being run on this forked repository
+
+Because this repository contained workflow files when it was forked, we have disabled them from running on this fork.
+Make sure you understand the configured workflows and their expected usage before enabling Actions on this repository.
+---------------------------------------
+git repo: html_frontend Trigger continuous integration
+
+The pipeline cannot be run locally now, you can view the configuration and select tools such as gitlab.
+
+Trigger continuous deployment: html_frontend
+
+Could not get deployment docker image, Please “Trigger continuous integration” first.
+
+Solution:
+You can self-host GitLab on your own servers, while GitHub is a cloud-based service. So, if you prefer to have more
+control over your repositories and data, GitLab might be more beneficial. GitLab has a wide range of features,
+ built-in CI/CD, code review, issue tracking, and more
+----------------
+Failed to reset code.In the ./workspace/59/Rastin-Abbasi/template_freestyleApp directory,
+git reset --hard origin fatureBranch false failed: fatal: ambiguous argument 'origin/feat/20250211_gu01':
+unknown revision or path not in the working tree. Use '--' to separate paths from revisions, like this: 'git [...] -- [...]'
+
+Solution:
+
+def gitResetWorkspace(wsPath, gitPath, fatureBranch, commitMsg, gitConfigList):
+    gitCwd = wsPath+'/'+gitPath
+
+    result = subprocess.run(
+        ['git', 'fetch', 'origin', fatureBranch], capture_output=True, text=True, cwd=gitCwd)
+    if result.returncode != 0:
+        print("git fetch origin fatureBranch false failed: "+result.stderr)
+        return True, result.stderr
+
+    result = subprocess.run(
+        ['git', 'reset', '--hard', fatureBranch], capture_output=True, text=True, cwd=gitCwd)
+            #['git', 'reset', '--hard', 'origin/' + fatureBranch], capture_output = True, text = True, cwd = gitCwd)
+----------
+Failed to push code.In the ./workspace/57/kuafuai/template_freestyleApp directory,
+git push failed:remote: Permission to kuafuai/template_freestyleApp.git denied to Rastin-Abbasi. f
+atal: unable to access 'https://github.com/kuafuai/template_freestyleApp.git/': The requested URL returned error: 403
+
+changed all git repo in DB to mine
+----------------------
+Error: Failed to access GPT, please check whether your network can connect to GPT and terminal proxy is running properly.
+Error =Error code: 404 - {'error': {'message': 'The model `gpt-3.5-turbo-16k-0613` has been deprecated, learn more here:
+https://platform.openai.com/docs/deprecations', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}
+
+
+Solution: https://platform.openai.com/docs/deprecations
+------------------------------------
+Error: Failed to access GPT, please check whether your network can connect to GPT and terminal proxy is running properly.
+Error =Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details.
+ For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.',
+ 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+
+https://platform.openai.com/settings/organization/
+------------------------------------------------
+
+Error: Failed to access GPT: Error code: 400 - {'error': {'message': 'max_tokens is too large: 10000.
+This model supports at most 4096 completion tokens, whereas you provided 10000.', 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': None}}
+
+
+--------------------------------------------
+The current task has generated code, unable to add requirements, after “Push code”, click this link to start a new requirement based on the current code.
+?!!
+
+-------------
+Click CI
+ERROR
+Failed to push code.In the ./workspace/54/kuafuai/template_freestyleApp directory, git push failed:remote:
+Support for password authentication was removed on August 13, 2021. remote:
+Please see https://docs.github.com/get-started/getting-started-with-git/about-remote-repositories#cloning-with-https-urls
+for information on currently recommended modes of authentication. fatal: Authentication failed for 'https://github.com/kuafuai/template_freestyleApp.git/'
+
+Solution:
+select git_path from application_service where cd_container_name ="python-game";
+update application_service set git_path="Rastin-Abbasi/template_pythonGameApp.git" where cd_container_name ="python-game";
+
+change the git connection settin in env.yaml
+
+
+------------------------------
+The pipeline cannot be run locally now, you can view the configuration and select tools such as gitlab!!
+
+?
+--------------------------
+Failed to reset code.In the ./workspace/56/Rastin-Abbasi/template_pythonGameApp directory,
+git reset --hard origin fatureBranch false failed: fatal: ambiguous argument 'origin/feat/20250211_i4cd':
+unknown revision or path not in the working tree. Use '--' to separate paths from revisions, like this: 'git [...] -- [...]
