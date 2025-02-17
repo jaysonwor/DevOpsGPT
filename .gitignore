@@ -10,6 +10,7 @@ db/versions/*
 db/env.py
 db/README.md
 db/database_pro.db
+db/database.db
 alembic.ini*
 .idea
 venv
