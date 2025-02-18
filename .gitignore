@@ -13,3 +13,4 @@ db/database_pro.db
 alembic.ini*
 .idea
 venv
+db
