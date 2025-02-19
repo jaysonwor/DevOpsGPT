@@ -179,11 +179,10 @@ modelSelectedSuccessCallback = function(data){
     });
     str = '<i class="thumbtack icon teal"></i>'+globalFrontendText["ai_selected_app_2"] + ": "+ data["requirement_id"]
         +"<hr />"+'<i class="app store ios icon teal"></i>'+ data.app.name + ": " + data.app.description
-        +"<hr />"+ repos
         +"<hr />"+'<i class="code branch teal icon"></i>'+ globalFrontendText["ai_selected_app_4"] + data.default_source_branch +" "+ globalFrontendText["ai_selected_app_5"] +" "+ data.default_target_branch
         +"<hr /><br />" + globalFrontendText["ai_selected_app_6"];
     goodcase = `<div class="ui middle aligned divided list goodcase_list">
-    <h4 style="padding-top: 10px;">`+globalFrontendText["ai_goodcase_intro"]+`</h4>
+    <h4 style="padding-top: 10px;">`+`</h4>
     <div class="item">
       <div class="right floated content">
         <div class="ui button" onclick="useGoodCase('f_goodcase_content_1')">`+globalFrontendText["goodcase_chose"]+`</div>
@@ -191,33 +190,6 @@ modelSelectedSuccessCallback = function(data){
       <div class="content">
         <div class="header">`+globalFrontendText["goodcase_title_1"]+`</div>
         <span class="f_goodcase_content_1">`+globalFrontendText["goodcase_content_1"]+`</span>
-      </div>
-    </div>
-    <div class="item">
-      <div class="right floated content">
-        <div class="ui button" onclick="useGoodCase('f_goodcase_content_2')">`+globalFrontendText["goodcase_chose"]+`</div>
-      </div>
-      <div class="content">
-        <div class="header">`+globalFrontendText["goodcase_title_2"]+`</div>
-        <span class="f_goodcase_content_2">`+globalFrontendText["goodcase_content_2"]+`</span>
-      </div>
-    </div>
-    <div class="item">
-      <div class="right floated content">
-        <div class="ui button" onclick="useGoodCase('f_goodcase_content_3')">`+globalFrontendText["goodcase_chose"]+`</div>
-      </div>
-      <div class="content">
-        <div class="header">`+globalFrontendText["goodcase_title_3"]+`</div>
-        <span class="f_goodcase_content_3">`+globalFrontendText["goodcase_content_3"]+`</span>
-      </div>
-    </div>
-    <div class="item">
-      <div class="right floated content">
-        <div class="ui button" onclick="useGoodCase('f_goodcase_content_4')">`+globalFrontendText["goodcase_chose"]+`</div>
-      </div>
-      <div class="content">
-        <div class="header">`+globalFrontendText["goodcase_title_4"]+`</div>
-        <span class="f_goodcase_content_4">`+globalFrontendText["goodcase_content_4"]+`</span>
       </div>
     </div>
   </div>`
@@ -1657,7 +1629,7 @@ clarifySuccessCallback = function(data, isRecover){
         var table = '<h5>'+globalFrontendText["ai_requirement_clarify_4"]+'</h5><table class="ui celled table"><thead><tr><th class="eight wide">'+globalFrontendText["question"]+'</th><th class="eight wide">'+globalFrontendText["answer"]+'</th></tr></thead><tbody>'
         console.log(msgJson)
         msgJson.forEach(function (element, element_index, element_array) {
-            table += '<tr><td><span>'+element["question"]+"</span>"+element["reasoning"]+'</td><td><div class="ui fluid icon input"><input type="text" name="clarify_answer" value="'+element["answer_sample"]+'" placeholder="'+globalFrontendText["answer"]+'" autocomplete="off"></div></td></tr>'
+            table += '<tr><td><span>'+element["question"]+" </span> <blockquote> Reason: "+element["reasoning"]+'</blockquote></td><td><div class="ui fluid icon input"><input type="text" name="clarify_answer" value="'+element["answer_sample"]+'" placeholder="'+globalFrontendText["answer"]+'" autocomplete="off"></div></td></tr>'
         })
         table += '</tbody></table><button class="ui green button" onclick="clarifyOk(this)">'+globalFrontendText["submit"]+'</button>'
         msg = table
@@ -1752,7 +1724,6 @@ function taskAnalysis(customPrompt, service_name, hideUserPrompt, thisElement) {
     setTimeout(function () {
         $(".ai-code-container."+ai_code_class).eq($('ai-code-container.'+ai_code_class).length - 1).slideDown();
     }, 700);
-    // 滚动到页面底部
     setTimeout(function () {
         $('html, body').animate({ scrollTop: $(document).height() }, 'slow');
     }, 900);

@@ -8,38 +8,59 @@ from app.pkgs.knowledge.app_info import getServiceSpecification
 from app.pkgs.tools import storage
 from config import MODE
 
+
 class SubtaskBasic(SubtaskInterface):
-    def splitTask(self, requirementID, feature, serviceName, appBasePrompt, projectInfo, projectLib, serviceStruct, appID, tenant_id):
-        #return setpGenCode(TEST_PSEUDOCODE, feature, appBasePrompt, "- You can choose any appropriate development language", serviceStruct)
+    def splitTask(
+        self,
+        requirementID,
+        feature,
+        serviceName,
+        appBasePrompt,
+        projectInfo,
+        projectLib,
+        serviceStruct,
+        appID,
+        tenant_id,
+    ):
+        # return setpGenCode(TEST_PSEUDOCODE, feature, appBasePrompt, "- You can choose any appropriate development language", serviceStruct)
         if MODE == "FAKE":
             time.sleep(5)
             jsonData = parse_chat(FAKE_SUBTASK)
             return jsonData, True
-        
-        # get libs 
-        data, success = setpReqChooseLib(requirementID, feature, appBasePrompt, projectInfo, projectLib)
+
+        # get libs
+        data, success = setpReqChooseLib(
+            requirementID, feature, appBasePrompt, projectInfo, projectLib
+        )
         code_require = []
         for t in data:
-            name = t['name']
+            name = t["name"]
             require_msg, _ = getServiceSpecification(appID, serviceName, name)
             code_require.append(require_msg)
         code_require = list(set(code_require))
         print(f"get code_require:{code_require}")
-        specification = '\n'.join(code_require)
-        
+        specification = "\n".join(code_require)
+
         # ssss
         storage.set("specification", specification)
 
         # subtask
-        subtask, ctx, success = setpSubTask(requirementID, feature, appBasePrompt, serviceStruct, specification, serviceName)
+        subtask, ctx, success = setpSubTask(
+            requirementID,
+            feature,
+            appBasePrompt,
+            serviceStruct,
+            specification,
+            serviceName,
+        )
         return subtask, success
-        
+
     def splitTaskDo(self, req_info, service_info, tec_doc, tenant_id):
         requirement_id = req_info["requirement_id"]
-        
+
         # ssss
         specification = storage.get("specification")
-        
+
         service_name = service_info["name"]
         service_struct = service_info["struct_cache"]
         language = service_info["language"]
@@ -47,46 +68,77 @@ class SubtaskBasic(SubtaskInterface):
         original_requirement = req_info["original_requirement"]
 
         # pseudocode
-        pseudocode, success = setpPseudocode(requirement_id, language, framework, tec_doc,  service_struct, original_requirement)
+        pseudocode, success = setpPseudocode(
+            requirement_id,
+            language,
+            framework,
+            tec_doc,
+            service_struct,
+            original_requirement,
+        )
         if success:
-            return setpGenCode(requirement_id, pseudocode, original_requirement, specification, service_struct, service_name)
+            return setpGenCode(
+                requirement_id,
+                pseudocode,
+                original_requirement,
+                specification,
+                service_struct,
+                service_name,
+            )
         else:
             return pseudocode, False
 
-    def write_code(self, requirement_id, service_name, file_path, development_detail, step_id):
+    def write_code(
+        self, requirement_id, service_name, file_path, development_detail, step_id
+    ):
         pass
 
 
-def setpGenCode(requirementID, pseudocode, feature, specification, serviceStruct, serviceName):
+def setpGenCode(
+    requirementID, pseudocode, feature, specification, serviceStruct, serviceName
+):
     context = []
-    context.append({
-        "role": "system",
-        "content": """
+    context.append(
+        {
+            "role": "system",
+            "content": """
 NOTICE
 Role: As a senior full stack developer, you are very diligent and good at writing complete code. 
 You will get "Development specification" and "Development requirement" and "Pseudocode" for write the final complete code that works correctly.
-Please note that the code should be fully functional. No placeholders no todo ensure that all code can run in production environment correctly."""})
-    context.append({
-        "role": "user",
-        "content": """
+Please note that the code should be fully functional. No placeholders no todo ensure that all code can run in production environment correctly.""",
+        }
+    )
+    context.append(
+        {
+            "role": "user",
+            "content": """
 Development specification:
 ```
-""" + specification + """
+"""
+            + specification
+            + """
 ```
 
 Development requirement:
 ```
-""" + feature + """
+"""
+            + feature
+            + """
 ````
 
 Pseudocode:
 ```
-""" + pseudocode + """
+"""
+            + pseudocode
+            + """
 ```
-"""})
-    context.append({
-        "role": "user",
-        "content": """
+""",
+        }
+    )
+    context.append(
+        {
+            "role": "user",
+            "content": """
 Now complete all Pseudocode codes according to the above information including ALL code, it is going to be a long response.
 Please note that the code should be fully functional. No placeholders no todo ensure that all code can run in production environment correctly.
 
@@ -108,39 +160,54 @@ Please note that the code should be fully functional. No placeholders.
 
 Make sure that files contain all imports, types etc. The code should be fully functional. Make sure that code in different files are compatible with each other.
 Before you finish, double check that all parts of the architecture is present in the files.
-"""
-    })
+""",
+        }
+    )
 
     # data = TEST_RESULT
     # success = True
     data, total_tokens, success = chatCompletion(context)
-    
+
     jsonData = parse_chat(data, serviceName)
     print(jsonData)
 
     return jsonData, success
 
-def setpPseudocode(requirement_id, language, framework, tec_doc,  service_struct, original_requirement):
+
+def setpPseudocode(
+    requirement_id, language, framework, tec_doc, service_struct, original_requirement
+):
     context = []
 
-    content =  """
+    content = (
+        """
 # Context
 Existing Code directory structure:
 ```
-""" + service_struct + """
+"""
+        + service_struct
+        + """
 ```
 
-开发需求:
+Development Requirements:
 ```
-"""+original_requirement+"""
+"""
+        + original_requirement
+        + """
 ```
 
-将开发需求拆解为一系列必要的子步骤，并为每个步骤提供详细的说明如下：
+Break down the development requirements into a series of necessary sub-steps, and provide detailed instructions for each step as follows:
 ```
-""" + tec_doc + """
+"""
+        + tec_doc
+        + """
 ```
 -----
-作为一名资深""" + language + """系统架构师，你的任务是在""" + framework + """框架下开发。
+As a """
+        + language
+        + """System architect, your task is in:"""
+        + framework
+        + """Developed under the framework.
 Think step by step and reason yourself to the right decisions to make sure we get it right.
 
 You will output the pseudocode of each file based on the "Existing Code directory structure". 
@@ -161,46 +228,56 @@ CODE```
 
 Do not explain and talk, directly respond pseudocode of each file.
 """
+    )
     context.append({"role": "user", "content": content})
     message, total_tokens, success = chatCompletion(context)
 
     return message, success
 
-def setpSubTask(requirementID, feature, appBasePrompt, serviceStruct, specification, serviceName):
+
+def setpSubTask(
+    requirementID, feature, appBasePrompt, serviceStruct, specification, serviceName
+):
     context = []
-    content = """Your job is to think step by step according to the basic "Code directory structure" and "Development specification" provided below, and break down the "Development requirement" provided below into multiple substeps of writing code. each step needs to be detailed.
+    content = (
+        """Your job is to think step by step according to the basic "Code directory structure" and "Development specification" provided below, and break down the "Development requirement" provided below into multiple substeps of writing code. each step needs to be detailed.
 
 Only break down subtasks of writing code and do not write code, and decomposition should be appropriate and reasonable, neither over-splitting nor missing key steps.
 
-"""+appBasePrompt+"""
+"""
+        + appBasePrompt
+        + """
 
 Note that, Break down multiple subtasks only from the perspective of writing code. these steps should not include: "choose development language, set up environment, create directory, enexecute test, preparing the environment, execute packaging, execute deploying, write document, submit code and so on."
 
 Code directory structure:
 ```
-""" + serviceStruct + """
+"""
+        + serviceStruct
+        + """
 ```
 
 Development specification:
 ```
-""" + specification + """  
+"""
+        + specification
+        + """  
 ```
 
 Development requirement:
 ```
-""" + feature + """
+"""
+        + feature
+        + """
 ````
 
 Do not explain and talk, directly respond substeps.
-输出格式示例：
+Example of output format:
 ```
-1. 在`xxx`文件中...用于...：
-   - 依赖以下内容：
-     - 依赖...用于..
-   - 并实现以下功能：
-     - ...
+1. In the 'xxx' file... For... : - Rely on the following: -Depend... For.. - And implement the following functions: -...
 ```
 """
+    )
     context.append({"role": "system", "content": content})
     message, total_tokens, success = chatCompletion(context)
 
@@ -210,48 +287,57 @@ Do not explain and talk, directly respond substeps.
 # choose lib by req
 def setpReqChooseLib(requirementID, feature, appBasePrompt, projectInfo, projectLib):
     context = []
-    content = appBasePrompt + """, Your task is to analyze the requirements and find the appropriate component names. Think step by step, combine the existing project information and the existing component list, analyze the user input requirements to use which components, be careful to select only among the existing components. Please do not write code
+    content = (
+        appBasePrompt
+        + """, Your task is to analyze the requirements and find the appropriate component names. Think step by step, combine the existing project information and the existing component list, analyze the user input requirements to use which components, be careful to select only among the existing components. Please do not write code
 
 Note that the returned component name must contain only the name but not the description. In addition, the component name must be exactly the same as that in the component list.
 
 Service Information:
 ```
-""" + projectInfo + """
+"""
+        + projectInfo
+        + """
 ```
     
 components list:
 ```
-""" + projectLib + """
+"""
+        + projectLib
+        + """
 ```
 
 requirements:
 ```
-""" + feature + """
+"""
+        + feature
+        + """
 ```
     """
+    )
     context.append({"role": "system", "content": content})
     message, total_tokens, success = chatCompletion(context)
 
-    context.append({
-        "role": "assistant",
-        "content": message
-    })
+    context.append({"role": "assistant", "content": message})
 
-    context.append({
-        "role": "user",
-        "content": """Summary of the components chosen above.you will provide only the output in the exact format specified below with no explanation or conversation.
+    context.append(
+        {
+            "role": "user",
+            "content": """Summary of the components chosen above.you will provide only the output in the exact format specified below with no explanation or conversation.
 
 You should only directly respond in JSON format as described below, Ensure the response must can be parsed by Python json.loads, Response Format example:
 ```
 [{"name":"{the name without a description}","reason":"reason","description":"description"}]
 ```
-"""
-    })
+""",
+        }
+    )
 
     data, total_tokens, success = chatCompletion(context)
     data = fix_llm_json_str(data)
 
     return json.loads(data), success
+
 
 def parse_chat(chat, serviceName):
     regex = r"(.+?)```[^\n]*\n(.+?)```"
@@ -261,7 +347,7 @@ def parse_chat(chat, serviceName):
     for match in matches:
         print(match.group(1))
         print("=======")
-        pattern = r'filepath:\s*(.*?)\s*code explanation:\s*(.*)'
+        pattern = r"filepath:\s*(.*?)\s*code explanation:\s*(.*)"
         match2 = re.search(pattern, match.group(1), re.DOTALL)
         if match2:
             path = match2.group(1)
@@ -274,12 +360,20 @@ def parse_chat(chat, serviceName):
         code = match.group(2)
 
         # Add the file to the list
-        if path.startswith(serviceName+"/"):
-            path = path[len(serviceName+"/"):]
-        files.append({"file-path": path,"code": code, "code-interpreter": interpreter, "reference-file": ""})
+        if path.startswith(serviceName + "/"):
+            path = path[len(serviceName + "/") :]
+        files.append(
+            {
+                "file-path": path,
+                "code": code,
+                "code-interpreter": interpreter,
+                "reference-file": "",
+            }
+        )
 
     # Return the files
     return files
+
 
 FAKE_SUBTASK = """
 filepath:index.html
@@ -482,7 +576,7 @@ game.start();
 """
 
 
-TEST_PSEUDOCODE =  """index.html
+TEST_PSEUDOCODE = """index.html
 ```html
 <!-- The main HTML file for the game interface -->
 <!DOCTYPE html>

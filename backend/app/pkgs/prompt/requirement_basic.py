@@ -9,7 +9,8 @@ from app.models.application_service import ApplicationService
 from app.pkgs.tools import storage
 
 _ = getI18n("prompt")
-DOC_FRONTEND = _("""
+DOC_FRONTEND = _(
+    """
 ## Original Requirements
 Develop one ... 
 
@@ -39,8 +40,10 @@ Develop one ...
 [
     "Request the back-end interface to pass parameters ...",
 ]
-""")
-DOC_BACKEND = _("""
+"""
+)
+DOC_BACKEND = _(
+    """
 ## Original Requirements
 Develop one ... 
 
@@ -71,8 +74,10 @@ Develop one ...
     "Accept request parameter: ...",
 ]
 ```
-""")
-FRONTEND_BACKEND = _("""
+"""
+)
+FRONTEND_BACKEND = _(
+    """
 ## Original Requirements
 Develop one ... 
 
@@ -124,9 +129,10 @@ Backend Business logic
 [
     "Accept request parameter: ...",
 ]
-""")
-DOC_GAME = _("""
-## 游戏名称
+"""
+)
+DOC_GAME = _(
+    """
 pingpang game...
              
 ## Original Requirements
@@ -146,13 +152,13 @@ Develop one ...
 ]
 ```
              
-## 游戏详细规则
 ```python
 [
     "Move with keyboard control ...",
 ]
 ```
-""")
+"""
+)
 
 DOC_COMMON = """
 ## Original Requirements
@@ -192,7 +198,9 @@ The product should be a ...
 
 
 class RequirementBasic(RequirementInterface):
-    def clarifyRequirement(self, requirementID, userPrompt, globalContext, appArchitecture, req):
+    def clarifyRequirement(
+        self, requirementID, userPrompt, globalContext, appArchitecture, req
+    ):
         _ = getI18n("prompt")
         firstPrompt = ""
         preContext = []
@@ -217,7 +225,6 @@ class RequirementBasic(RequirementInterface):
             elif service["service_type"] == "FRONTEND_BACKEND":
                 PRDTemplate = FRONTEND_BACKEND
 
-        # todo 这个参数暂时不要调整，过多的澄清会导致出现幻觉，并且程序在获取澄清列表的时候也需要调整
         maxCycle = 2
         message = ""
         clarified_list = ""
@@ -228,20 +235,30 @@ class RequirementBasic(RequirementInterface):
             clarified_list = userPrompt
 
             preContext = preContext[1:]
-            preContext.append({
-                "role": "user",
-                "content": userPrompt + """
+            preContext.append(
+                {
+                    "role": "user",
+                    "content": userPrompt
+                    + """
 
 Is there anything else unclear? If yes, continue asking less than 3 unclear questions in the same format as before, If no, only directly respond \"Nothing more to clarify.\"
-"""
-            })
+""",
+                }
+            )
         else:
             firstPrompt = preContext[0]["content"]
             clarified_list = userPrompt
 
         # 对已生成需求文档的修改
         if "development_requirements_detail" in globalContext:
-            return adjust(requirementID, userPrompt, PRDTemplate, appArchitecture, service_list, ServiceType)
+            return adjust(
+                requirementID,
+                userPrompt,
+                PRDTemplate,
+                appArchitecture,
+                service_list,
+                ServiceType,
+            )
         # 澄清过程
         elif len(preContext) < maxCycle:
             finalContext = [
@@ -250,7 +267,9 @@ Is there anything else unclear? If yes, continue asking less than 3 unclear ques
                     "content": """
 Role: You are a professional full stack developer. Your task is to read user "software development requirement" and base on "Application Information" to clarify them to complete a requirement document(PRD) like:
 ```
-"""+PRDTemplate+"""
+"""
+                    + PRDTemplate
+                    + """
 ```
 
 Note that we should guide the user to make the requirements fit into the "Application implementation", and avoid completely deviating from the requirements of the application positioning.
@@ -259,61 +278,102 @@ Specifically you will summarise a list of super short bullets of areas that need
 
 Application Information:
 ```
-"""+appArchitecture+"""
+"""
+                    + appArchitecture
+                    + """
 ```
 
 Software development requirement:
 ```
-"""+firstPrompt+"""
+"""
+                    + firstPrompt
+                    + """
 ```
 
 You should only directly respond in JSON format as described below, Ensure the response must can be parsed by Python json.loads, Response Format example:
 [{"question":"question","reasoning":"reasoning","answer_sample":"Answer sample"},{"question":"question","reasoning":"reasoning","answer_sample":"Answer sample"}]
 Follow the JSON response exactly as above.
 
-Note: Keep conversations in """+getCurrentLanguageName()+""".
-"""
+Note: Keep conversations in """
+                    + getCurrentLanguageName()
+                    + """.
+""",
                 }
             ]
             finalContext.extend(preContext)
 
-            message, total_tokens, success = chatCompletion(
-                finalContext, "")
+            message, total_tokens, success = chatCompletion(finalContext, "")
 
-            if message.find("Nothing more to clarify") != -1 or message.find('"question":""') != -1:
-                return organize(requirementID, firstPrompt, PRDTemplate, appArchitecture, service_list, ServiceType, clarified_list)
+            if (
+                message.find("Nothing more to clarify") != -1
+                or message.find('"question":""') != -1
+            ):
+                return organize(
+                    requirementID,
+                    firstPrompt,
+                    PRDTemplate,
+                    appArchitecture,
+                    service_list,
+                    ServiceType,
+                    clarified_list,
+                )
         # 总结需求文档
         else:
-            return organize(requirementID, firstPrompt, PRDTemplate, appArchitecture, service_list, ServiceType, clarified_list)
+            return organize(
+                requirementID,
+                firstPrompt,
+                PRDTemplate,
+                appArchitecture,
+                service_list,
+                ServiceType,
+                clarified_list,
+            )
 
         message = fix_llm_json_str(message)
         return json.loads(message), success
 
 
-def organize(requirementID, firstPrompt, PRDTemplate, appArchitecture, service_list, ServiceType, clarified_list):
+def organize(
+    requirementID,
+    firstPrompt,
+    PRDTemplate,
+    appArchitecture,
+    service_list,
+    ServiceType,
+    clarified_list,
+):
     Organize = []
-    Organize.append({
-        "role": "system",
-        "content": """
+    Organize.append(
+        {
+            "role": "system",
+            "content": """
 # Context
 ## Original Requirements
 ```
-"""+firstPrompt+"""
+"""
+            + firstPrompt
+            + """
 ```
 
 ## clarified list:
 ```
-"""+clarified_list+"""
+"""
+            + clarified_list
+            + """
 ```
 
 ## Application Information:
 ```
-"""+appArchitecture+"""
+"""
+            + appArchitecture
+            + """
 ```
 
 ## Product document Templates
 ---
-"""+PRDTemplate+"""
+"""
+            + PRDTemplate
+            + """
 ---
 
 -----
@@ -325,9 +385,12 @@ The answers from the 'clarified list' are of utmost importance and must be inclu
 
 Follow the "Product document Templates" structure strictly and don't add any extra structure.
 Output results directly carefully referenced the "Product document Templates" without dialogue and explanation.
-Note: output in """+getCurrentLanguageName()+""".
-"""
-    })
+Note: output in """
+            + getCurrentLanguageName()
+            + """.
+""",
+        }
+    )
 
     message, total_tokens, success = chatCompletion(Organize, "")
 
@@ -335,86 +398,99 @@ Note: output in """+getCurrentLanguageName()+""".
     print(parsed_data)
     services_involved = []
     for service in service_list:
-        services_involved.append({
-            "service_name": service["name"],
-            "reasoning": ""
-        })
+        services_involved.append({"service_name": service["name"], "reasoning": ""})
     re = {
         "development_requirements_overview": "",
         "development_requirements_detail": parsed_data,
         "services_involved": services_involved,
-        "review": ""
+        "review": "",
     }
 
     # ssss
     storage.set("last_prd", parsed_data)
-    
+
     re["review"] = review(requirementID, message, ServiceType, appArchitecture)
 
     return re, success
 
-def adjust(requirementID, userPrompt, PRDTemplate, appArchitecture, service_list, ServiceType):
+
+def adjust(
+    requirementID, userPrompt, PRDTemplate, appArchitecture, service_list, ServiceType
+):
     # ssss
     last_prd = storage.get("last_prd")
-    
+
     if len(last_prd) < 1:
         raise Exception("Failed to obtain the PRD document. 获取PRD文档失败。")
 
     Organize = []
-    Organize.append({
-        "role": "system",
-        "content": """
+    Organize.append(
+        {
+            "role": "system",
+            "content": """
 Keep the structure of the requirements document unchanged Re-generate the requirements document based on feedback below.
 
 feedback
 ```
-"""+userPrompt+"""
+"""
+            + userPrompt
+            + """
 ```
 
 requirements document
 ```
-"""+last_prd+"""
+"""
+            + last_prd
+            + """
 ```
 
-Output modified final requirement document content directly in """+getCurrentLanguageName()+""".
-"""
-    })
+Output modified final requirement document content directly in """
+            + getCurrentLanguageName()
+            + """.
+""",
+        }
+    )
 
     message, total_tokens, success = chatCompletion(Organize, "")
 
     print(message)
     services_involved = []
     for service in service_list:
-        services_involved.append({
-            "service_name": service["name"],
-            "reasoning": ""
-        })
+        services_involved.append({"service_name": service["name"], "reasoning": ""})
     re = {
         "development_requirements_overview": "",
         "development_requirements_detail": message,
         "services_involved": services_involved,
-        "review": ""
+        "review": "",
     }
 
     return re, success
 
+
 def review(requirementID, PRD, ServiceType, appArchitecture):
     Organize = []
-    Organize.append({
-        "role": "system",
-        "content": """
-Role: You are a professional """+ServiceType+""" software developer, your task is to review the Product Requirements Document (PRD) to ensure that the requirements can be effectively developed within the existing application and that the requirements are sufficiently detailed. Please provide no more than three of the most constructive suggestions.
+    Organize.append(
+        {
+            "role": "system",
+            "content": """
+Role: You are a professional """
+            + ServiceType
+            + """ software developer, your task is to review the Product Requirements Document (PRD) to ensure that the requirements can be effectively developed within the existing application and that the requirements are sufficiently detailed. Please provide no more than three of the most constructive suggestions.
 
 Note: suggestions need focus on functional requirements rather than technical requirements.
 
 Requirement Document:
 '''
-"""+PRD+"""
+"""
+            + PRD
+            + """
 '''
 
 existing application info:
 ```
-"""+appArchitecture+"""
+"""
+            + appArchitecture
+            + """
 ```
 
 Output carefully referenced "Format example" in format without explanation or dialogue.
@@ -426,9 +502,12 @@ Format example:
 ]
 '''
 
-Note: List suggestions in """+getCurrentLanguageName()+""".
-"""
-    })
+Note: List suggestions in """
+            + getCurrentLanguageName()
+            + """.
+""",
+        }
+    )
 
     message, total_tokens, success = chatCompletion(Organize, "")
 
@@ -436,33 +515,27 @@ Note: List suggestions in """+getCurrentLanguageName()+""".
 
     return convert_code_blocks_to_markdown(message)
 
-def convert_code_blocks_to_markdown_items(input_text):
-    # 按逗号分割字符串，并去除首尾的空格
-    lines = [line.strip().strip('",').strip("',")
-             for line in input_text.split('\n')]
 
-    # 格式化成列表项
+def convert_code_blocks_to_markdown_items(input_text):
+    lines = [line.strip().strip('",').strip("',") for line in input_text.split("\n")]
+
     formatted_lines = []
     for line in lines:
         if len(line) > 0:
-            formatted_lines.append('- ' + line.strip('"'))
+            formatted_lines.append("- " + line.strip('"'))
 
-    # 返回格式化后的文本
-    return '\n'.join(formatted_lines)
+    return "\n".join(formatted_lines)
 
 
 def convert_code_blocks_to_markdown(input_text):
     result = input
 
-    # 定义正则表达式模式，匹配目标格式的代码块
-    pattern = r'```python\n\[(.*?)\]\n```'
+    pattern = r"```python\n\[(.*?)\]\n```"
 
-    # 使用re.sub()函数进行替换
     def replace(match):
         content = match.group(1)
         return convert_code_blocks_to_markdown_items(content)
 
-    # 执行替换
     result = re.sub(pattern, replace, input_text, flags=re.DOTALL)
 
     return result

@@ -64,9 +64,6 @@ msgstr ""
 #: backend/app/pkgs/tools/i18b.py:45
 msgid "to start the development task!"
 msgstr ""
-"<a href='https://vvx03gck2p.feishu.cn/docx/OvjMd4ImKoIyLuxmuIpcC3WrnEd' "
-"target='_blank'>Don't know how to play? Click here to get you started in 10 "
-"minutes</a>"
 
 #: backend/app/pkgs/tools/i18b.py:46
 msgid "I need to develop requirements in the"
