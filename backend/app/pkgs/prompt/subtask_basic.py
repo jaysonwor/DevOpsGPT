@@ -130,17 +130,17 @@ Existing Code directory structure:
 """ + service_struct + """
 ```
 
-开发需求:
+development requirements:
 ```
 """+original_requirement+"""
 ```
 
-将开发需求拆解为一系列必要的子步骤，并为每个步骤提供详细的说明如下：
+Break down development requirements into a series of necessary sub-steps and provide detailed instructions for each step as follows:
 ```
 """ + tec_doc + """
 ```
 -----
-作为一名资深""" + language + """系统架构师，你的任务是在""" + framework + """框架下开发。
+As a senior """ + language + """ system architect, your task is to develop under the """ + framework + """ framework.
 Think step by step and reason yourself to the right decisions to make sure we get it right.
 
 You will output the pseudocode of each file based on the "Existing Code directory structure". 

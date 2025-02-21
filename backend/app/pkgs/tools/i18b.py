@@ -42,7 +42,7 @@ def getFrontendText():
         "service_modification_item_empty":_("The services involved are not analyzed. Check whether the application architecture information is accurate"),
         "ai_think": _("Thinking..."),
         "ai_start_1": _("Hello, I am the AI-assisted code development assistant, please select the"),
-        "ai_start_2": _("to start the development task!"),
+        #"ai_start_2": _("to start the development task!"),
         "ai_select_app": _("I need to develop requirements in the"),
         "ai_selected_app_1": _("Task APP"),
         "ai_selected_app_2": _("Task ID"),

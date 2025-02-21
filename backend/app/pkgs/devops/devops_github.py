@@ -57,11 +57,11 @@ class DevopsGitHub(DevopsInterface):
                 "Accept": "application/vnd.github+json",
                 "X-GitHub-Api-Version": "2022-11-28"
             }
-            
+
             run_details_url = f"{ciURL}/repos/{repopath}/actions/runs/{run_id}"
             run_response = requests.get(run_details_url, headers=headers)
-            print(run_response)
-            
+            print("run_response : ", run_response)
+
             if run_response.status_code == 200:
                 print(run_response.json())
                 job_log_url = run_response.json()["jobs_url"]
@@ -70,22 +70,23 @@ class DevopsGitHub(DevopsInterface):
                 if run_details.status_code == 200:
 
                     jobs = run_details.json()["jobs"]
-                    
+
                     job_info = []
                     docker_image = ""
                     for job in jobs:
-                        print("job:", job)
+                        #print("job:", job)
                         if job["conclusion"] is None:
                                 job["conclusion"] = "none"
                                 job["completed_at"] = "none"
-                                
+
                         steps = ""
                         for step in job["steps"]:
                             if step["conclusion"] is None:
                                 step["conclusion"] = "none"
                             steps += step["name"]+"<br>"+step["conclusion"]+"<br><br>"
-                        
+
                         job_log = self.getPipelineJobLogs(repopath, run_id, job["id"], ciConfig)
+                        #print ("job_log :",job_log)
                         img = parseDockerImage(job_log)
                         if len(img) > 1:
                             docker_image = img
@@ -135,12 +136,15 @@ def removeColorCodes(log_string):
     return cleaned_string
 
 def parseDockerImage(input_str):
-    pattern = r'kuafuai_docker_image_pushed:(.+?)[&|\n]'
+    pattern = r'docker_image_pushed:(.+?)[&|\n]'
+
 
     match = re.search(pattern, input_str)
 
     if match:
         result = match.group(1)
+        result = "docker.io/"+ result.replace("***", "rastinabbasi").strip()
+        print("parseDockerImage: Image Found :<", result,">")
         return result
     else:
         print("parseDockerImage: No match found")

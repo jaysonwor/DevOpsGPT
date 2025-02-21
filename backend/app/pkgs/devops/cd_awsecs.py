@@ -2,7 +2,7 @@ import boto3
 from botocore.exceptions import ClientError
 import datetime
 
-# todo 未测试
+# todo
 # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ecs.html
 class CDAWS:    
     def triggerCD(self, image, serviceInfo, cdConfig):
@@ -11,6 +11,7 @@ class CDAWS:
                'serviceInfo :' ,serviceInfo,
                 "aws_alb_name :", aws_alb_name,
                 "aws_tg_name :" ,aws_tg_name)
+
         # Create ALB and Target Group
         alb_arn, tg_arn, alb_dns_name, success = self.create_alb_and_target_group(cdConfig, serviceInfo, aws_alb_name, aws_tg_name)
         if not success:
@@ -32,6 +33,7 @@ class CDAWS:
         container_definition = {
             "name": serviceInfo["cd_container_name"],
             "image": image,
+            #"image": "docker.io/rastinabbasi/freestyle-app:latest",
             "cpu": 1024,  # 0.5 vCPU
             "memory": 2048,  # 2GB RAM
             "essential": True,
@@ -67,7 +69,7 @@ class CDAWS:
         print(f"Generated service_name: {aws_service_name}")
         try:
             # Create or update a service
-            cd_cluster = 'KuaFuAIUser'
+            cd_cluster = 'DevOpsGpt_ECS'
             existing_services = client.list_services(cluster=cd_cluster)
             if aws_service_name in existing_services["serviceArns"]:
                 client.update_service(
@@ -85,7 +87,7 @@ class CDAWS:
                     launchType='FARGATE',
                     networkConfiguration={
                         'awsvpcConfiguration': {
-                            'subnets': [serviceInfo["cd_subnet"], "subnet-02a884ac1c7bd0519"],
+                            'subnets': [serviceInfo["cd_subnet"], serviceInfo["cd_subnet2"]],
                             'securityGroups': [serviceInfo["cd_security_group"]],
                             'assignPublicIp': 'ENABLED'
                         }
@@ -102,8 +104,10 @@ class CDAWS:
         except Exception as e:
             return f"Error creating/updating service: {str(e)}", False
 
-        return f'Visit URL：http://{alb_dns_name}:8086 （This environment is for experience only and will be deleted after 1 hour）', True
-    
+        #return f'Visit URL：http://{alb_dns_name}:8086 （This environment is for experience only and will be deleted after 1 hour）', True
+        return f'Visit URL：<a target="_blank" href="http://{alb_dns_name}:8086"> Open Application</a> ', True
+
+
     def generate_names_with_timestamp(self, service_id):
         # Get the current time and format it into hours and minutes
         timestamp = datetime.datetime.now().strftime('%H%M')
@@ -156,7 +160,7 @@ class CDAWS:
 
             tg_arn = tg_response['TargetGroups'][0]['TargetGroupArn']
 
-            # 创建 Listener
+            # Listener
             listener_response = elbv2_client.create_listener(
                 LoadBalancerArn=alb_arn,
                 Protocol='HTTP',

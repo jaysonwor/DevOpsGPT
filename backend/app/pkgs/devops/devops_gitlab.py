@@ -98,7 +98,7 @@ def removeColorCodes(log_string):
 
 def parseDockerImage(input_str):
     # Define regular expression pattern
-    pattern = r'kuafuai_docker_image_pushed:(.+?)[&|\n]'
+    pattern = r'devopsgpt_docker_image_pushed:(.+?)[&|\n]'
 
     # Use re.search to find matches
     match = re.search(pattern, input_str)
